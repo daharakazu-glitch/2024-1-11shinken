@@ -1,0 +1,875 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2024年11月　1年進研模試　重要語句復習アプリ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            transition: all 0.3s ease-in-out;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+         .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+        .btn-green {
+            background-color: #10b981;
+            color: white;
+        }
+        .btn-green:hover {
+            background-color: #059669;
+        }
+        .btn-red {
+            background-color: #ef4444;
+            color: white;
+        }
+        .btn-disabled {
+            background-color: #d1d5db;
+            cursor: not-allowed;
+        }
+        .hidden {
+            display: none;
+        }
+        .quiz-option {
+            border: 2px solid #e5e7eb;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quiz-option:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .quiz-option.selected {
+            border-color: #3b82f6;
+            background-color: #dbeafe;
+        }
+        .quiz-option.correct {
+            border-color: #10b981;
+            background-color: #d1fae5;
+        }
+        .quiz-option.incorrect {
+            border-color: #ef4444;
+            background-color: #fee2e2;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div id="app" class="max-w-3xl mx-auto p-4 sm:p-6">
+        <header class="text-center mb-6">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">2024年11月　1年進研模試　重要語句復習アプリ</h1>
+        </header>
+
+        <!-- Setup Section -->
+        <section id="setup-section" class="card space-y-6">
+            <div>
+                <h2 class="text-2xl font-bold mb-3">1. 学習する単語を選択</h2>
+                <div class="flex space-x-2 mb-3">
+                    <button id="select-all" class="btn btn-secondary text-sm px-3 py-1">すべて選択</button>
+                    <button id="deselect-all" class="btn btn-secondary text-sm px-3 py-1">すべて解除</button>
+                </div>
+                <div id="word-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-60 overflow-y-auto p-2 border rounded-lg">
+                    <!-- Word checkboxes will be inserted here -->
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-bold mb-3">2. 学習モードを選択</h2>
+                <div class="flex space-x-4">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="mode" value="word" class="form-radio h-5 w-5 text-blue-600" checked>
+                        <span>単語・フレーズのみ</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="mode" value="sentence" class="form-radio h-5 w-5 text-blue-600">
+                        <span>例文で学習</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="text-center sm:flex sm:flex-col md:flex-row md:justify-center md:items-center">
+                <button id="start-learning-btn" class="btn btn-primary w-full md:w-auto text-lg mb-3 md:mb-0 md:mr-4">学習を開始する</button>
+                <button id="download-pdf-btn" class="btn btn-green w-full md:w-auto text-lg">PDFでダウンロード</button>
+            </div>
+        </section>
+
+        <!-- Learning Section -->
+        <section id="learning-section" class="card hidden text-center">
+            <div class="mb-4 text-right">
+                <span id="progress-indicator" class="text-lg font-bold text-gray-600"></span>
+            </div>
+            
+            <!-- Flashcard Area -->
+            <div id="flashcard-container" class="mb-8 min-h-[150px] flex items-center justify-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition" title="クリックして答えを表示">
+                <div class="text-center">
+                    <p id="english-text" class="text-3xl sm:text-4xl font-bold"></p>
+                    <p id="japanese-text" class="text-xl text-gray-700 mt-4 hidden"></p>
+                </div>
+            </div>
+
+            <div class="flex justify-center items-center space-x-4 mb-8">
+                <button id="speak-btn" class="btn btn-primary"><i class="fas fa-volume-up mr-2"></i>再生</button>
+                <button id="record-btn" class="btn btn-red"><i class="fas fa-microphone mr-2"></i>録音</button>
+                <button id="play-recording-btn" class="btn btn-green btn-disabled" disabled><i class="fas fa-play mr-2"></i>自分の音声</button>
+            </div>
+             <audio id="recording-player" class="hidden"></audio>
+
+            <div class="flex justify-between">
+                <button id="prev-btn" class="btn btn-secondary"><i class="fas fa-arrow-left mr-2"></i>前へ</button>
+                <div class="flex space-x-2">
+                    <button id="back-to-setup-btn" class="btn btn-secondary bg-gray-400 hover:bg-gray-500">単語選択に戻る</button>
+                    <button id="start-test-btn" class="btn btn-primary">テストへ進む</button>
+                </div>
+                <button id="next-btn" class="btn btn-secondary">次へ<i class="fas fa-arrow-right ml-2"></i></button>
+            </div>
+        </section>
+
+        <!-- Test Options Section -->
+        <section id="test-options-section" class="card hidden text-center">
+            <h2 class="text-2xl font-bold mb-6">最終テスト</h2>
+            <p class="text-gray-600 mb-6">学習した単語の中からランダムで出題します。<br>問題数を選択してください。</p>
+            <div id="test-choices" class="flex justify-center space-x-4">
+                <!-- Test choice buttons will be here -->
+            </div>
+             <button id="back-to-learning-btn" class="btn btn-secondary mt-6 bg-gray-400 hover:bg-gray-500">学習に戻る</button>
+        </section>
+
+        <!-- Quiz Section -->
+        <section id="quiz-section" class="card hidden">
+            <div class="flex justify-between items-center mb-4">
+                 <h2 class="text-2xl font-bold">テスト中</h2>
+                 <span id="quiz-progress" class="text-lg font-bold text-gray-600"></span>
+            </div>
+            <div class="mb-6">
+                <p id="quiz-question" class="text-center text-3xl font-bold mb-6"></p>
+                <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Quiz options will be here -->
+                </div>
+            </div>
+             <div id="feedback" class="text-center text-xl font-bold my-4 min-h-[30px]"></div>
+            <div class="text-center">
+                 <button id="next-question-btn" class="btn btn-primary hidden w-full sm:w-auto">次の問題へ</button>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results-section" class="card hidden text-center">
+            <h2 class="text-3xl font-bold mb-4">テスト結果</h2>
+            <p id="score" class="text-5xl font-bold text-blue-600 mb-6"></p>
+            <div id="incorrect-answers-container" class="text-left">
+                <h3 class="text-xl font-bold mb-3">間違えた問題</h3>
+                <ul id="incorrect-answers-list" class="space-y-2 list-disc list-inside">
+                    <!-- Incorrect answers will be here -->
+                </ul>
+            </div>
+            <button id="restart-btn" class="btn btn-primary mt-8 w-full sm:w-auto text-lg">もう一度挑戦する</button>
+        </section>
+
+    </div>
+
+    <!-- PDF Download Modal -->
+    <div id="pdf-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
+        <div class="relative mx-auto p-5 border w-11/12 md:w-1/2 lg:w-1/3 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">ダウンロードするPDFの種類を選択</h3>
+                <div class="mt-4 px-7 py-3 space-y-3">
+                    <button id="download-list-btn" class="btn btn-primary w-full justify-start">1. 完全な単語のリスト</button>
+                    <button id="download-en-quiz-btn" class="btn btn-primary w-full justify-start">2. 英語の単語を解答する問題</button>
+                    <button id="download-ja-quiz-btn" class="btn btn-primary w-full justify-start">3. 単語の日本語訳を解答する問題</button>
+                    <button id="download-mixed-quiz-btn" class="btn btn-primary w-full justify-start">4. 英語と日本語が混在した問題</button>
+                    <button id="download-sentence-quiz-btn" class="btn btn-primary w-full justify-start">5. 例文の穴埋め問題</button>
+                    <button id="download-sentence-mixed-quiz-btn" class="btn btn-primary w-full justify-start">6. 例文の混合問題 (穴埋め/和訳)</button>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="close-modal-btn" class="btn btn-secondary w-full">キャンセル</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const vocabulary = [
+            // 大問3
+            { english: 'remember to do', japanese: '忘れずに～する', sentence: 'Please remember to lock the door.', sentence_ja: '忘れずにドアに鍵をかけてください。' },
+            { english: 'remember -ing', japanese: '～したことを覚えている', sentence: 'I remember meeting him last year.', sentence_ja: '私は去年彼に会ったのを覚えています。' },
+            { english: 'stand', japanese: '～を我慢する', sentence: 'I can\'t stand the noise from the construction site.', sentence_ja: '私は工事現場の騒音を我慢できません。' },
+            { english: 'get into ~', japanese: '～の中へ入る', sentence: 'How did the cat get into the box?', sentence_ja: 'その猫はどうやって箱の中に入ったのですか？' },
+            { english: 'without being -ed', japanese: '～されることなく', sentence: 'He entered the room without being seen.', sentence_ja: '彼は見られることなく部屋に入りました。' },
+            { english: 'advise O to do', japanese: 'Oに～するように助言する', sentence: 'The doctor advised him to get more rest.', sentence_ja: '医者は彼にもっと休息をとるように助言しました。' },
+            { english: 'as many A as possible', japanese: 'できるだけ多くのA', sentence: 'Please collect as many samples as possible.', sentence_ja: 'できるだけ多くのサンプルを集めてください。' },
+            // 大問4
+            { english: 'bright', japanese: '明るい', sentence: 'The room was filled with bright sunlight.', sentence_ja: '部屋は明るい太陽の光で満たされていました。' },
+            { english: 'as soon as ~', japanese: '～するとすぐに', sentence: 'I will call you as soon as I arrive.', sentence_ja: '到着したらすぐに電話します。' },
+            { english: 'announce', japanese: '～を発表する', sentence: 'The company will announce the new product next week.', sentence_ja: 'その会社は来週、新製品を発表します。' },
+            { english: 'audition', japanese: 'オーディション', sentence: 'She has an audition for a new play tomorrow.', sentence_ja: '彼女は明日、新しい劇のオーディションがあります。' },
+            { english: 'take place', japanese: '行われる', sentence: 'The festival will take place next weekend.', sentence_ja: 'その祭りは来週末に行われます。' },
+            { english: 'pianist', japanese: 'ピアニスト', sentence: 'She is a talented pianist.', sentence_ja: '彼女は才能のあるピアニストです。' },
+            { english: 'opportunity', japanese: '機会', sentence: 'This is a great opportunity to learn something new.', sentence_ja: 'これは何か新しいことを学ぶ絶好の機会です。' },
+            { english: 'after all', japanese: '結局、何しろ～だから', sentence: 'I decided not to go. After all, it was raining.', sentence_ja: '私は行かないことにしました。何しろ、雨が降っていましたから。' },
+            { english: 'as if ~', japanese: 'まるで～であるかのように', sentence: 'He talks as if he knew everything.', sentence_ja: '彼はまるで何でも知っているかのように話します。' },
+            { english: 'at least', japanese: '少なくとも', sentence: 'You should drink at least eight glasses of water a day.', sentence_ja: '少なくとも1日に8杯の水を飲むべきです。' },
+            { english: 'reject', japanese: '～を拒否する', sentence: 'He decided to reject the job offer.', sentence_ja: '彼はその仕事の申し出を拒否することに決めました。' },
+            { english: 'go by', japanese: '（時間などが）過ぎる', sentence: 'Time seems to go by so quickly when you are having fun.', sentence_ja: '楽しんでいると時間はあっという間に過ぎていくようです。' },
+            { english: 'on the line', japanese: '危険にさらされて', sentence: 'His career was on the line.', sentence_ja: '彼のキャリアは危機に瀕していました。' },
+            { english: 'hearing', japanese: '聴力', sentence: 'Loud music can damage your hearing.', sentence_ja: '大音量の音楽は聴力を損なう可能性があります。' },
+            { english: 'major in ~', japanese: '～を専攻する', sentence: 'She plans to major in economics at university.', sentence_ja: '彼女は大学で経済学を専攻する予定です。' },
+            { english: 'selfish', japanese: '自分勝手な', sentence: 'It was selfish of him to eat all the cake.', sentence_ja: 'ケーキを全部食べてしまうなんて、彼は自分勝手でした。' },
+            { english: 'feel like -ing', japanese: '～したい気がする', sentence: 'I feel like going for a walk.', sentence_ja: '散歩に行きたい気分です。' },
+            { english: 'turning point', japanese: '転機、転換点', sentence: 'Moving to a new city was a turning point in my life.', sentence_ja: '新しい都市への引っ越しは私の人生の転機でした。' },
+            // 大問5
+            { english: 'overestimate', japanese: '～を過大評価する', sentence: 'Don\'t overestimate your own abilities.', sentence_ja: '自分自身の能力を過大評価してはいけません。' },
+            { english: 'the truth is (that) ~', japanese: '実は～だ', sentence: 'The truth is that I don\'t want to go to the party.', sentence_ja: '実は、私はそのパーティーに行きたくないのです。' },
+            { english: 'comprehension', japanese: '理解（力）', sentence: 'Reading books improves your reading comprehension.', sentence_ja: '本を読むことは読解力を向上させます。' },
+            { english: 'prove', japanese: '～を証明する', sentence: 'The experiment will prove his theory.', sentence_ja: 'その実験は彼の理論を証明するでしょう。' },
+            { english: 'pioneer', japanese: '先駆者', sentence: 'She was a pioneer in the field of computer science.', sentence_ja: '彼女はコンピューターサイエンスの分野における先駆者でした。' },
+            { english: 'otherwise', japanese: '違ったふうに、さもなければ', sentence: 'Hurry up, otherwise you will be late.', sentence_ja: '急いで、さもなければ遅刻しますよ。' },
+            { english: 'concern', japanese: '～に関係する', sentence: 'This issue does not concern you.', sentence_ja: 'この問題はあなたには関係ありません。' },
+            { english: 'wander', japanese: '散漫になる', sentence: 'My mind started to wander during the long lecture.', sentence_ja: '長い講義の間、私の心は散漫になり始めました。' },
+            { english: 'get sidetracked', japanese: '（考え・話が）脇道にそれる', sentence: 'Let\'s focus on the main topic and not get sidetracked.', sentence_ja: '主要な話題に集中し、脇道にそれないようにしましょう。' },
+            { english: 'contribute to', japanese: '～の一因となる', sentence: 'Lack of sleep can contribute to poor performance.', sentence_ja: '睡眠不足は成績不振の一因となり得ます。' },
+            { english: 'second', japanese: '秒', sentence: 'There are sixty seconds in a minute.', sentence_ja: '1分は60秒です。' },
+            { english: 'interruption', japanese: '中断', sentence: 'He finished his speech without interruption.', sentence_ja: '彼は中断されることなくスピーチを終えました。' },
+            { english: 'make it C to do', japanese: '～することをCにする', sentence: 'Technology makes it possible to work from anywhere.', sentence_ja: 'テクノロジーはどこからでも働くことを可能にします。' },
+            { english: 'face-to-face', japanese: '対面の', sentence: 'A face-to-face meeting is better than a phone call.', sentence_ja: '電話よりも対面での会議の方が良いです。' },
+            { english: 'make eye contact', japanese: '目を合わせる', sentence: 'It is important to make eye contact when you speak to someone.', sentence_ja: '誰かと話すときは、目を合わせることが重要です。' },
+            // 大問6
+            { english: 'leave work early', japanese: '仕事を早退する', sentence: 'I had to leave work early for an appointment.', sentence_ja: '私は約束のために仕事を早退しなければなりませんでした。' },
+            { english: 'see a doctor', japanese: '医者に診てもらう', sentence: 'You should see a doctor if the symptoms persist.', sentence_ja: '症状が続くようであれば、医者に診てもらうべきです。' },
+            { english: 'take off work', japanese: '仕事を休む', sentence: 'She needs to take off work to care for her sick child.', sentence_ja: '彼女は病気の子供の世話をするために仕事を休む必要があります。' },
+            { english: 'consult', japanese: '～と相談する', sentence: 'You should consult a lawyer before signing the contract.', sentence_ja: '契約に署名する前に弁護士に相談すべきです。' },
+            { english: 'related to ~', japanese: '～に関する', sentence: 'I am reading a book related to Japanese history.', sentence_ja: '私は日本の歴史に関する本を読んでいます。' },
+            { english: 'talk to ~', japanese: '～に話す', sentence: 'I need to talk to you about something important.', sentence_ja: 'あなたに何か重要なことについて話す必要があります。' },
+            { english: 'tend to do', japanese: '～する傾向がある', sentence: 'People tend to eat more in the winter.', sentence_ja: '人々は冬になるとより多く食べる傾向があります。' },
+            { english: 'be used to ~', japanese: '～に慣れている', sentence: 'He is used to working long hours.', sentence_ja: '彼は長時間働くことに慣れています。' },
+            { english: 'traditional', japanese: '伝統的な', sentence: 'Kimono is a traditional Japanese garment.', sentence_ja: '着物は日本の伝統的な衣服です。' },
+        ];
+
+
+        // --- STATE ---
+        let selectedWords = [];
+        let currentWordIndex = 0;
+        let learningMode = 'word'; // 'word' or 'sentence'
+        let quizQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let incorrectAnswers = [];
+
+        // --- AUDIO STATE ---
+        let mediaRecorder;
+        let audioChunks = [];
+        let recordedAudioURL = null;
+        let americanEnglishVoice = null;
+
+        // --- DOM ELEMENTS ---
+        const sections = {
+            setup: document.getElementById('setup-section'),
+            learning: document.getElementById('learning-section'),
+            testOptions: document.getElementById('test-options-section'),
+            quiz: document.getElementById('quiz-section'),
+            results: document.getElementById('results-section'),
+        };
+        const wordListContainer = document.getElementById('word-list');
+        const startLearningBtn = document.getElementById('start-learning-btn');
+        const downloadPdfBtn = document.getElementById('download-pdf-btn');
+        const pdfModal = document.getElementById('pdf-modal');
+        const flashcardContainer = document.getElementById('flashcard-container');
+        const englishText = document.getElementById('english-text');
+        const japaneseText = document.getElementById('japanese-text');
+        const progressIndicator = document.getElementById('progress-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const startTestBtn = document.getElementById('start-test-btn');
+        const speakBtn = document.getElementById('speak-btn');
+        const recordBtn = document.getElementById('record-btn');
+        const playRecordingBtn = document.getElementById('play-recording-btn');
+        const recordingPlayer = document.getElementById('recording-player');
+
+
+        // --- FUNCTIONS ---
+        function switchSection(sectionToShow) {
+            Object.values(sections).forEach(section => section.classList.add('hidden'));
+            if (sections[sectionToShow]) {
+                sections[sectionToShow].classList.remove('hidden');
+            }
+        }
+
+        function populateWordList() {
+            wordListContainer.innerHTML = ''; // Clear existing list
+            vocabulary.forEach((word, index) => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 cursor-pointer text-sm';
+                label.innerHTML = `
+                    <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 word-checkbox" data-index="${index}">
+                    <span>${word.english}</span>
+                `;
+                wordListContainer.appendChild(label);
+            });
+        }
+
+        function updateLearningView() {
+            const word = selectedWords[currentWordIndex];
+            learningMode = document.querySelector('input[name="mode"]:checked').value;
+
+            if (learningMode === 'sentence' && word.sentence) {
+                let sentenceJa = word.sentence_ja || word.japanese;
+                
+                // Highlight the Japanese equivalent of the target word in the example sentence.
+                // This is a simplified approach; a more robust solution would need NLP.
+                const searchTarget = word.japanese.split(/[(（,，]/)[0].replace(/[～]/g, '');
+                if (sentenceJa.includes(searchTarget)) {
+                    japaneseText.innerHTML = sentenceJa.replace(new RegExp(searchTarget, 'g'), `<strong><u>${searchTarget}</u></strong>`);
+                } else {
+                    japaneseText.textContent = sentenceJa;
+                }
+                
+                // Underline the target English word in the example sentence.
+                const targetWord = word.english.split(/[\s～(]/)[0].replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                const regex = new RegExp(`(\\b${targetWord}[a-z]*\\b)`, 'gi');
+                
+                if (regex.test(word.sentence)) {
+                    englishText.innerHTML = word.sentence.replace(regex, `<span class="underline">$1</span>`);
+                } else {
+                     englishText.innerHTML = word.sentence; // No underline if not found
+                }
+            } else {
+                englishText.innerHTML = word.english;
+                japaneseText.textContent = word.japanese;
+            }
+            
+            japaneseText.classList.add('hidden'); // Reset to hidden state
+            progressIndicator.textContent = `${currentWordIndex + 1} / ${selectedWords.length}`;
+
+            prevBtn.disabled = currentWordIndex === 0;
+            nextBtn.disabled = currentWordIndex === selectedWords.length - 1;
+            prevBtn.classList.toggle('btn-disabled', prevBtn.disabled);
+            nextBtn.classList.toggle('btn-disabled', nextBtn.disabled);
+
+            // Reset recording button
+            playRecordingBtn.disabled = true;
+            playRecordingBtn.classList.add('btn-disabled');
+            recordedAudioURL = null;
+        }
+
+        function loadAndSetVoice() {
+            const voices = window.speechSynthesis.getVoices();
+            // Find a high-quality American English voice. Prioritize Google's voices.
+            americanEnglishVoice = 
+                voices.find(voice => voice.name === 'Google US English' && voice.lang === 'en-US') ||
+                voices.find(voice => voice.lang === 'en-US' && voice.name.includes('Google')) ||
+                voices.find(voice => voice.lang === 'en-US');
+        }
+
+        function speak(text) {
+             if ('speechSynthesis' in window) {
+                // Cancel any previous speech to prevent overlap
+                window.speechSynthesis.cancel();
+                
+                // Remove the underline span for cleaner speech
+                const cleanText = text.replace(/<span class="underline">/g, '').replace(/<\/span>/g, '');
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                
+                // If a specific American English voice has been found, use it
+                if (americanEnglishVoice) {
+                    utterance.voice = americanEnglishVoice;
+                } else {
+                    // Fallback for browsers where voices load slowly or a specific voice isn't found
+                    utterance.lang = 'en-US';
+                }
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.error('お使いのブラウザは音声合成に対応していません。');
+            }
+        }
+        
+        async function setupRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    recordedAudioURL = URL.createObjectURL(audioBlob);
+                    recordingPlayer.src = recordedAudioURL;
+                    playRecordingBtn.disabled = false;
+                    playRecordingBtn.classList.remove('btn-disabled');
+                };
+            } catch (err) {
+                console.error("Microphone access denied:", err);
+                alert("マイクへのアクセスが拒否されました。録音機能を使用するには、ブラウザの設定でマイクを許可してください。");
+                recordBtn.disabled = true;
+                recordBtn.classList.add('btn-disabled');
+            }
+        }
+
+        function startRecording() {
+            if (mediaRecorder && mediaRecorder.state === "inactive") {
+                audioChunks = [];
+                mediaRecorder.start();
+                recordBtn.textContent = '録音停止';
+                recordBtn.classList.remove('btn-red');
+                recordBtn.classList.add('bg-yellow-500');
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                recordBtn.innerHTML = '<i class="fas fa-microphone mr-2"></i>録音';
+                recordBtn.classList.add('btn-red');
+                recordBtn.classList.remove('bg-yellow-500');
+            }
+        }
+
+        function showTestOptions() {
+            const numSelected = selectedWords.length;
+            const testChoicesContainer = document.getElementById('test-choices');
+            testChoicesContainer.innerHTML = '';
+
+            const options = [];
+            if (numSelected >= 10) options.push(10);
+            if (numSelected >= 20) options.push(20);
+            
+            if (options.length === 0 && numSelected > 0) {
+                 options.push(numSelected);
+            }
+            // Always add an option for all selected words
+            if (numSelected > 0 && !options.includes(numSelected)) {
+                options.push(numSelected);
+                options.sort((a,b) => a - b);
+            }
+
+            if (options.length > 0) {
+                options.forEach(num => {
+                    const button = document.createElement('button');
+                    button.className = 'btn btn-primary text-lg';
+                    button.textContent = `${num}問`;
+                    button.onclick = () => generateTest(num);
+                    testChoicesContainer.appendChild(button);
+                });
+            } else {
+                testChoicesContainer.innerHTML = `<p class="text-red-500">テストを行うには、少なくとも1つの単語を選択してください。</p>`;
+            }
+            switchSection('testOptions');
+        }
+
+        function generateTest(numQuestions) {
+            quizQuestions = [];
+            score = 0;
+            currentQuestionIndex = 0;
+            incorrectAnswers = [];
+            
+            const shuffled = [...selectedWords].sort(() => 0.5 - Math.random());
+            const questions = shuffled.slice(0, numQuestions);
+
+            quizQuestions = questions.map(q => {
+                const correctAnswer = q.japanese;
+                let options = [correctAnswer];
+
+                while (options.length < 4) {
+                    const randomWord = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+                    if (!options.includes(randomWord.japanese)) {
+                        options.push(randomWord.japanese);
+                    }
+                }
+                return {
+                    question: q.english,
+                    correct: correctAnswer,
+                    options: options.sort(() => 0.5 - Math.random())
+                };
+            });
+            
+            displayQuizQuestion();
+            switchSection('quiz');
+        }
+
+        function displayQuizQuestion() {
+            const q = quizQuestions[currentQuestionIndex];
+            document.getElementById('quiz-question').textContent = q.question;
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'quiz-option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectAnswer(optionDiv, option, q.correct);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            document.getElementById('quiz-progress').textContent = `${currentQuestionIndex + 1} / ${quizQuestions.length}`;
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('next-question-btn').classList.add('hidden');
+        }
+
+        function selectAnswer(element, selectedAnswer, correctAnswer) {
+            // Disable all options after one is selected
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.onclick = null;
+                opt.style.cursor = 'default';
+            });
+            
+            const feedbackEl = document.getElementById('feedback');
+            
+            if (selectedAnswer === correctAnswer) {
+                element.classList.add('correct');
+                feedbackEl.textContent = '正解！';
+                feedbackEl.className = 'text-center text-xl font-bold my-4 min-h-[30px] text-green-600';
+                score++;
+            } else {
+                element.classList.add('incorrect');
+                feedbackEl.textContent = `不正解... 正解は「${correctAnswer}」`;
+                feedbackEl.className = 'text-center text-xl font-bold my-4 min-h-[30px] text-red-600';
+                incorrectAnswers.push({
+                    question: quizQuestions[currentQuestionIndex].question,
+                    correct: correctAnswer,
+                    yourAnswer: selectedAnswer,
+                });
+                // Highlight the correct answer
+                 document.querySelectorAll('.quiz-option').forEach(opt => {
+                    if (opt.textContent === correctAnswer) {
+                        opt.classList.add('correct');
+                    }
+                });
+            }
+            document.getElementById('next-question-btn').classList.remove('hidden');
+        }
+        
+        function showResults() {
+            document.getElementById('score').textContent = `${score} / ${quizQuestions.length}`;
+            const list = document.getElementById('incorrect-answers-list');
+            list.innerHTML = '';
+
+            const container = document.getElementById('incorrect-answers-container');
+            const scoreEl = document.getElementById('score');
+            
+            // Remove previous "all correct" message if it exists
+            const existingP = scoreEl.nextElementSibling;
+            if (existingP && existingP.tagName === 'P') {
+                existingP.remove();
+            }
+
+            if (incorrectAnswers.length > 0) {
+                container.classList.remove('hidden');
+                incorrectAnswers.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${item.question}</strong><br>正解: ${item.correct} (あなたの解答: ${item.yourAnswer})`;
+                    list.appendChild(li);
+                });
+            } else {
+                 container.classList.add('hidden');
+                 scoreEl.insertAdjacentHTML('afterend', '<p class="text-2xl text-green-600 font-bold mt-4">全問正解！素晴らしい！</p>');
+            }
+            switchSection('results');
+        }
+
+        function getSelectedWordsForPdf() {
+            const checkedBoxes = document.querySelectorAll('.word-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                alert('ダウンロードする単語を1つ以上選択してください。');
+                return null;
+            }
+            const words = [];
+            checkedBoxes.forEach(cb => {
+                words.push(vocabulary[cb.dataset.index]);
+            });
+            return words;
+        }
+
+        function openPrintWindow(bodyContent, title) {
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html lang="ja">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>${title}</title>
+                    <style>
+                        body { font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; line-height: 1.8; margin: 25px; }
+                        @media print { .no-print { display: none; } }
+                        h1, h2 { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 25px; }
+                        ol, ul { list-style-position: inside; padding-left: 0; }
+                        li { margin-bottom: 15px; }
+                        .list-container { column-count: 2; column-gap: 40px; }
+                        .list-container li { -webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid; }
+                        @media (max-width: 700px) { .list-container { column-count: 1; } }
+                        .answer-key { page-break-before: always; }
+                    </style>
+                </head>
+                <body>
+                    <h1>${title}</h1>
+                    <p class="no-print" style="text-align:center;">
+                        印刷ダイアログが表示されない場合は、ブラウザの印刷機能（Ctrl+PまたはCmd+P）を使用してください。
+                    </p>
+                    ${bodyContent}
+                </body>
+                </html>
+            `;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+            setTimeout(() => {
+                printWindow.print();
+            }, 250);
+        }
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            populateWordList();
+            setupRecording();
+
+            // Handle voice loading to ensure a high-quality voice is selected
+            if ('speechSynthesis' in window) {
+                loadAndSetVoice(); // Attempt to load voices immediately
+                if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                    // The list of voices loads asynchronously. This ensures we get the best voice.
+                    window.speechSynthesis.onvoiceschanged = loadAndSetVoice;
+                }
+            }
+        });
+
+        flashcardContainer.addEventListener('click', () => {
+            japaneseText.classList.toggle('hidden');
+        });
+
+        document.getElementById('select-all').addEventListener('click', () => {
+            document.querySelectorAll('.word-checkbox').forEach(cb => cb.checked = true);
+        });
+
+        document.getElementById('deselect-all').addEventListener('click', () => {
+            document.querySelectorAll('.word-checkbox').forEach(cb => cb.checked = false);
+        });
+
+        startLearningBtn.addEventListener('click', () => {
+            selectedWords = [];
+            const checkedBoxes = document.querySelectorAll('.word-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                alert('学習する単語を1つ以上選択してください。');
+                return;
+            }
+            checkedBoxes.forEach(cb => {
+                selectedWords.push(vocabulary[cb.dataset.index]);
+            });
+            currentWordIndex = 0;
+            updateLearningView();
+            switchSection('learning');
+        });
+
+        // PDF Modal Listeners
+        downloadPdfBtn.addEventListener('click', () => pdfModal.classList.remove('hidden'));
+        document.getElementById('close-modal-btn').addEventListener('click', () => pdfModal.classList.add('hidden'));
+
+        document.getElementById('download-list-btn').addEventListener('click', () => {
+            const words = getSelectedWordsForPdf();
+            if (!words) return;
+            const listItems = words.map(word => `<li><strong>${word.english}</strong>: ${word.japanese}</li>`).join('');
+            openPrintWindow(`<ul class="list-container">${listItems}</ul>`, '重要語句リスト');
+            pdfModal.classList.add('hidden');
+        });
+
+        document.getElementById('download-en-quiz-btn').addEventListener('click', () => {
+            const words = getSelectedWordsForPdf();
+            if (!words) return;
+            const quizItems = words.map(word => `<li>${word.japanese}: _________________________</li>`).join('');
+            const answerItems = words.map(word => `<li>${word.english}</li>`).join('');
+            const bodyContent = `<h2>問題用紙</h2><ol class="list-container">${quizItems}</ol><div class="answer-key"><h2>解答</h2><ol class="list-container">${answerItems}</ol></div>`;
+            openPrintWindow(bodyContent, '重要語句テスト (英語を解答)');
+            pdfModal.classList.add('hidden');
+        });
+
+        document.getElementById('download-ja-quiz-btn').addEventListener('click', () => {
+            const words = getSelectedWordsForPdf();
+            if (!words) return;
+            const quizItems = words.map(word => `<li>${word.english}: _________________________</li>`).join('');
+            const answerItems = words.map(word => `<li>${word.japanese}</li>`).join('');
+            const bodyContent = `<h2>問題用紙</h2><ol class="list-container">${quizItems}</ol><div class="answer-key"><h2>解答</h2><ol class="list-container">${answerItems}</ol></div>`;
+            openPrintWindow(bodyContent, '重要語句テスト (日本語を解答)');
+            pdfModal.classList.add('hidden');
+        });
+
+        document.getElementById('download-mixed-quiz-btn').addEventListener('click', () => {
+            const words = getSelectedWordsForPdf();
+            if (!words) return;
+            let quizItems = '';
+            let answerItems = '';
+            words.forEach(word => {
+                if (Math.random() > 0.5) {
+                    quizItems += `<li>${word.japanese}: _________________________</li>`;
+                    answerItems += `<li>${word.english}</li>`;
+                } else {
+                    quizItems += `<li>${word.english}: _________________________</li>`;
+                    answerItems += `<li>${word.japanese}</li>`;
+                }
+            });
+            const bodyContent = `<h2>問題用紙</h2><ol class="list-container">${quizItems}</ol><div class="answer-key"><h2>解答</h2><ol class="list-container">${answerItems}</ol></div>`;
+            openPrintWindow(bodyContent, '重要語句テスト (混合)');
+            pdfModal.classList.add('hidden');
+        });
+
+        document.getElementById('download-sentence-quiz-btn').addEventListener('click', () => {
+            const words = getSelectedWordsForPdf();
+            if (!words) return;
+
+            const wordsForQuiz = words.filter(w => w.sentence);
+            if(wordsForQuiz.length === 0) {
+                alert('選択された単語には、穴埋め問題を作成できる例文がありません。');
+                return;
+            }
+            
+            const quizItems = wordsForQuiz.map(word => {
+                const coreWord = word.english.split(/[\s～(]/)[0].replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                const regex = new RegExp(`\\b${coreWord}[a-z]*\\b`, 'gi');
+                const blankedSentence = word.sentence.replace(regex, '_______________');
+                return `<li>${blankedSentence}<br>（ヒント: ${word.japanese}）</li>`;
+            }).join('');
+            const answerItems = wordsForQuiz.map(word => `<li>${word.english}</li>`).join('');
+            const bodyContent = `<h2>問題用紙</h2><ol>${quizItems}</ol><div class="answer-key"><h2>解答</h2><ol class="list-container">${answerItems}</ol></div>`;
+            openPrintWindow(bodyContent, '重要語句テスト (例文穴埋め)');
+            pdfModal.classList.add('hidden');
+        });
+
+        document.getElementById('download-sentence-mixed-quiz-btn').addEventListener('click', () => {
+            const words = getSelectedWordsForPdf();
+            if (!words) return;
+
+            const wordsForQuiz = words.filter(w => w.sentence && w.sentence_ja);
+            if (wordsForQuiz.length === 0) {
+                alert('選択された単語には、混合問題を作成できる例文がありません。');
+                return;
+            }
+
+            let quizItems = '';
+            let answerItems = '';
+
+            const shuffledWords = [...wordsForQuiz].sort(() => 0.5 - Math.random());
+            
+            const instructionText = '英語を答える問題は文脈に従ってヒントをもとに英語を、日本語を答える問題は英文の下線部の部分を日本語に直しなさい。';
+            const generalInstruction = `<p style="text-align: left; border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">${instructionText}</p>`;
+
+            shuffledWords.forEach(word => {
+                const coreWord = word.english.split(/[\s～(]/)[0].replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                const regex = new RegExp(`\\b${coreWord}[a-z]*\\b`, 'gi');
+                
+                if (Math.random() > 0.5) {
+                    // Type 1: Fill in the blank with the English word.
+                    const blankedSentence = word.sentence.replace(regex, '_______________');
+                    quizItems += `<li>${blankedSentence}<br>（ヒント: ${word.japanese}）</li>`;
+                    answerItems += `<li>${word.english}</li>`;
+                } else {
+                    // Type 2: Translate the underlined English word into Japanese.
+                    const underlinedSentence = word.sentence.replace(regex, (match) => `<u>${match}</u>`);
+                    quizItems += `<li>${underlinedSentence}<br>_________________________</li>`;
+                    answerItems += `<li>${word.japanese}</li>`;
+                }
+            });
+
+            const bodyContent = `<h2>問題用紙</h2>${generalInstruction}<ol>${quizItems}</ol><div class="answer-key"><h2>解答</h2><ol class="list-container">${answerItems}</ol></div>`;
+            openPrintWindow(bodyContent, '重要語句テスト (例文混合)');
+            pdfModal.classList.add('hidden');
+        });
+
+
+        prevBtn.addEventListener('click', () => {
+            if (currentWordIndex > 0) {
+                currentWordIndex--;
+                updateLearningView();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentWordIndex < selectedWords.length - 1) {
+                currentWordIndex++;
+                updateLearningView();
+            }
+        });
+        
+        document.getElementById('back-to-setup-btn').addEventListener('click', () => switchSection('setup'));
+        
+        startTestBtn.addEventListener('click', showTestOptions);
+
+        document.getElementById('back-to-learning-btn').addEventListener('click', () => switchSection('learning'));
+        
+        speakBtn.addEventListener('click', () => {
+            const word = selectedWords[currentWordIndex];
+            const textToSpeak = (learningMode === 'sentence' && word.sentence) ? word.sentence : word.english;
+            speak(textToSpeak);
+        });
+        
+        recordBtn.addEventListener('click', () => {
+            if (!mediaRecorder) {
+                alert("録音機能の準備ができていません。マイクを許可してください。");
+                return;
+            }
+            if (mediaRecorder.state === "recording") {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+
+        playRecordingBtn.addEventListener('click', () => {
+            if (recordedAudioURL) {
+                recordingPlayer.play();
+            }
+        });
+
+        document.getElementById('next-question-btn').addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizQuestions.length) {
+                displayQuizQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        document.getElementById('restart-btn').addEventListener('click', () => {
+            // Reset state
+            selectedWords = [];
+            currentWordIndex = 0;
+            quizQuestions = [];
+            currentQuestionIndex = 0;
+            score = 0;
+            incorrectAnswers = [];
+            // Uncheck all boxes
+            document.querySelectorAll('.word-checkbox').forEach(cb => cb.checked = false);
+            // Go to setup
+            switchSection('setup');
+        });
+
+    </script>
+</body>
+</html>
